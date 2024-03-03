@@ -3,15 +3,11 @@ const express = require("express");
 const cors = require("cors");
 const socketIO = require("socket.io");
 
-const PORT = 3500;
+const PORT = process.env.PORT;
 const users = [{}];
 
 const app = express();
-app.use(cors({
-    origin: [""],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
-}));
+app.use(cors());
 
 app.get("/", (req, res) => {
     res.send('Connected to the server');
@@ -21,17 +17,17 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 io.on("connection", (socket) => {
-    console.log("connection establised", socket.id)
+    // console.log("connection establised", socket.id)
     socket.on("joined", ({ user }) => {
         users[socket.id] = user;
-        console.log(`${user} has --joined--`);
+        // console.log(`${user} has --joined--`);
         socket.broadcast.emit('userJoined', { user: "Admin", message: `${users[socket.id]} has joined as a broadcast` });
         socket.emit('welcome', { user: "Admin", message: `${users[socket.id]} Welcome to the chat` });
     });
 
     socket.on('disconnect', () => {
         socket.broadcast.emit('leave', { user: "Admin", message: `${users[socket.id]} has left` });
-        console.log(users[socket.id] + " Left")
+        // console.log(users[socket.id] + " Left")
     });
 
     socket.on('message', ({ message, id, roomInputId }) => {
